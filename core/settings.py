@@ -24,10 +24,15 @@ if not SECRET_KEY:
 DEBUG = os.getenv('DEBUG', False)
 
 # HOSTs List
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1','52.53.168.82']
 
 # Add here your deployment HOSTS
-CSRF_TRUSTED_ORIGINS = ['http://localhost:8000', 'http://localhost:5085', 'http://127.0.0.1:8000', 'http://127.0.0.1:5085']
+CSRF_TRUSTED_ORIGINS = ['http://localhost:8000',
+                        'http://localhost:5085',
+                        'http://127.0.0.1:8000',
+                        'http://127.0.0.1:5085',
+                        'http://52.53.168.82/8000'
+                        ]
 
 # Application definition
 
