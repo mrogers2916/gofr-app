@@ -12,6 +12,7 @@ from app.models import Store
 from app.models import Product
 from app.models import Customer
 from app.models import Service
+from app.models import ZipCode
 from import_export import resources
 from import_export.admin import ImportMixin
 
@@ -30,10 +31,19 @@ class ServicerResource(resources.ModelResource):
     class Meta:
         model = Servicer
         fields = ['id', 'name', 'zip_code', 'service_cost']
-
 @admin.register(Servicer)
 class ServicerAdmin(ImportMixin, admin.ModelAdmin):
     list_display = ['id', 'name', 'zip_code', 'service_cost']
+    resource_class = ServicerResource
+
+
+class ZipCodeResource(resources.ModelResource):
+    class Meta:
+        model = ZipCode
+        fields = ['id', 'zip_code', 'servicer']
+@admin.register(ZipCode)
+class ZipCodeAdmin(ImportMixin, admin.ModelAdmin):
+    list_display = ['id', 'zip_code', 'servicer']
     resource_class = ServicerResource
 
 
@@ -41,7 +51,6 @@ class PlanResource(resources.ModelResource):
     class Meta:
         model = Plan
         fields = ['id', 'consumer_facing_price', 'plan_type']
-
 @admin.register(Plan)
 class PlanAdmin(ImportMixin, admin.ModelAdmin):
     list_display = ['id', 'consumer_facing_price', 'plan_type']
@@ -51,22 +60,20 @@ class PlanAdmin(ImportMixin, admin.ModelAdmin):
 class StoreResource(resources.ModelResource):
     class Meta:
         model = Store
-        fields = ['id', 'store_name', 'rev_share', 'ecommerce_platform']
-
+        fields = ['id', 'store_name', 'rev_share', 'ecommerce_platform', 'plan', 'product']
 @admin.register(Store)
 class StoreAdmin(ImportMixin, admin.ModelAdmin):
-    list_display = ['id', 'store_name', 'rev_share', 'ecommerce_platform']
+    list_display = ['id', 'store_name', 'rev_share', 'ecommerce_platform', 'plan', 'product']
     resource_class = StoreResource
 
 
 class ProductResource(resources.ModelResource):
     class Meta:
         model = Product
-        fields = ['id', 'name', 'category', 'subcategory', 'serviceable', 'store', 'plan']
-
+        fields = ['id', 'name', 'category', 'subcategory', 'serviceable']
 @admin.register(Product)
 class ProductAdmin(ImportMixin, admin.ModelAdmin):
-    list_display = ['id', 'name', 'category', 'subcategory', 'serviceable', 'store', 'plan']
+    list_display = ['id', 'name', 'category', 'subcategory', 'serviceable']
     resource_class = ProductResource
 
 
@@ -76,7 +83,6 @@ class CustomerResource(resources.ModelResource):
         fields = ['id', 'first_name', 'last_name',
                   'email', 'address', 'delivery_date',
                   'service_date', 'service_time']
-
 @admin.register(Customer)
 class CustomerAdmin(ImportMixin, admin.ModelAdmin):
     list_display = ['id', 'first_name', 'last_name', 'email', 'address', 'delivery_date', 'service_date', 'service_time']
@@ -87,9 +93,7 @@ class ServiceResource(resources.ModelResource):
     class Meta:
         model = Service
         fields = ['id', 'customer', 'servicer']
-
 @admin.register(Service)
 class ServiceAdmin(ImportMixin, admin.ModelAdmin):
     list_display = ['id', 'customer', 'servicer']
     resource_class = ServiceResource
-

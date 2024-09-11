@@ -5,7 +5,7 @@ Copyright (c) 2019 - present AppSeed.us
 
 from django.urls import path, re_path
 from app import views
-from .views import CheckZipCodeView, CheckProductView, CheckCustomerZipCodeView, ServiceApiView
+from .views import CheckZipCodeView, CheckProductView, StoreProductCheckView, ServiceApiView
 
 urlpatterns = [
 
@@ -21,10 +21,9 @@ urlpatterns = [
     re_path(r'^customers/(?:(?P<pk>\d+)/)?(?:(?P<action>\w+)/)?', views.CustomerView.as_view(), name='customers'),
     re_path(r'^services/(?:(?P<pk>\d+)/)?(?:(?P<action>\w+)/)?', views.ServiceView.as_view(), name='services'),
 
-    path('check-zipcode/<str:zip_code>/', CheckZipCodeView.as_view(), name='check-zipcode'),
-    path('check-customer-zipcode/<str:zip_code>/', CheckCustomerZipCodeView.as_view(), name='check-customer-zipcode'),
-    path('check-product/<str:product_name>/', CheckProductView.as_view(), name='check-product'),
-    path('service', ServiceApiView.as_view(), name='service'),
+    path('api/check-zipcode/<str:zip_code>/', CheckZipCodeView.as_view(), name='check-zipcode'),
+    path('api/store-product/check/', StoreProductCheckView.as_view(), name='store-product-check'),
+    path('api/service', ServiceApiView.as_view(), name='service'),
 
 
     # Matches any html file

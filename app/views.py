@@ -17,6 +17,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from app.serializer import ServiceSerializer
+from app.serializer import StoreSerializer
 
 from app.models import Customer
 from app.models import ZipCode
@@ -821,6 +822,7 @@ class ServiceView(View):
     #     return False, 'Error Occurred. Please try again.'
 
 
+# API Views
 class ServiceApiView(APIView):
     def post(self, request):
         serializer = ServiceSerializer(data=request.data)
@@ -834,17 +836,39 @@ class CheckZipCodeView(APIView):
         exists = ZipCode.objects.filter(code=zip_code).exists()
         return Response({'zip_code_exists': exists}, status=status.HTTP_200_OK)
 
-class CheckProductView(APIView):
-    def get(self, request, product_name):
-        exists = Product.objects.filter(name=product_name).exists()
-        return Response({'product_exists': exists}, status=status.HTTP_200_OK)
-
-class CheckCustomerZipCodeView(APIView):
-    def get(self, request, zip_code):
-        try:
-            customer = Customer.objects.get(id=zip_code)
-            zip_codes = customer.product.zip_codes.values_list('code', flat=True)
-            zip_code_exists = ZipCode.objects.filter(code__in=zip_codes).exists()
-            return Response({'zip_code_exists': zip_code_exists}, status=status.HTTP_200_OK)
-        except Customer.DoesNotExist:
-            return Response({'error': 'Customer not found'}, status=status.HTTP_404_NOT_FOUND)
+class StoreProductCheckView(APIView):
+    def post(self, request):
+        # Deserialize the incoming data
+        serializer = StoreSerializer(data=request.data)
+        if serializer.is_valid():
+            store_data = serializer.validated_data
+            product_data = store_data.pop('product')
+            
+            # Check if the product exists and is serviceable
+            product_exists = Product.objects.filter(
+                name=product_data['name'],
+                category=product_data['category'],
+                subcategory=product_data['subcategory'],
+                serviceable=product_data['serviceable']
+            ).exists()
+            
+            if not product_exists:
+                return Response({"message": "Product does not exist or is not serviceable"}, status=status.HTTP_404_NOT_FOUND)
+            
+            # Check if the store exists with the given product
+            store_exists = Store.objects.filter(
+                store_name=store_data['store_name'],
+                rev_share=store_data['rev_share'],
+                ecommerce_platform=store_data['ecommerce_platform'],
+                product__name=product_data['name'],  # Ensure the store has the given product
+                product__category=product_data['category'],
+                product__subcategory=product_data['subcategory'],
+                product__serviceable=product_data['serviceable']
+            ).exists()
+            
+            if store_exists:
+                return Response({"message": "Store and product exist"}, status=status.HTTP_200_OK)
+            else:
+                return Response({"message": "Store does not exist or does not have the specified product"}, status=status.HTTP_404_NOT_FOUND)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
